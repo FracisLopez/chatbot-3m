@@ -1,18 +1,339 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Asistente 3M España</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Asistente 3M España</title>
+
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#121a26;
+      --text:#e8eefc;
+      --muted:#a9b4cc;
+      --accent:#ff2b2b;
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --radius: 18px;
+      --btnSize: 64px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(255,43,43,.12), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(120,170,255,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding: 28px;
+    }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      display:grid;
+      gap: 18px;
+      align-content:start;
+    }
+    .hero{
+      background: rgba(18,26,38,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .row{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 260px;
+    }
+    .logo{
+      width:44px;height:44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,43,43,.95), rgba(255,43,43,.55));
+      display:grid;place-items:center;
+      box-shadow: 0 10px 25px rgba(255,43,43,.22);
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+    h1{margin:0;font-size: 22px}
+    .muted{color:var(--muted); margin: 6px 0 0}
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-size: 13px;
+      user-select:none;
+    }
+    .pill b{font-weight:700}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+    @media (max-width: 860px){
+      .grid{grid-template-columns: 1fr}
+      body{padding:18px}
+    }
+    .card{
+      background: rgba(18,26,38,.62);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{margin:0 0 10px; font-size: 16px}
+    ul{margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.6}
+    .btn-primary{
+      appearance:none;
+      border:0;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(255,43,43,.98), rgba(255,43,43,.70));
+      color:white;
+      box-shadow: 0 14px 30px rgba(255,43,43,.22);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn-primary:hover{transform: translateY(-1px); filter: brightness(1.03);}
+    .btn-primary:active{transform: translateY(0px); filter: brightness(.98);}
+
+    /* Floating button */
+    .fab{
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      width: var(--btnSize);
+      height: var(--btnSize);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(18,26,38,.9);
+      box-shadow: var(--shadow);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      z-index: 9998;
+      transition: transform .15s ease;
+    }
+    .fab:hover{transform: translateY(-1px);}
+    .fab .dot{
+      width: 18px; height: 18px; border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 10px 25px rgba(255,43,43,.30);
+      margin-right: 8px;
+    }
+    .fab span{
+      display:flex; align-items:center;
+      font-weight:800; letter-spacing:.2px;
+      font-size: 14px;
+      padding: 0 10px;
+    }
+
+    /* Modal */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      display:none;
+      z-index: 9999;
+    }
+    .overlay.open{display:block;}
+
+    .modal{
+      position: fixed;
+      right: 22px;
+      bottom: calc(22px + var(--btnSize) + 14px);
+      width: min(420px, calc(100vw - 44px));
+      height: min(640px, calc(100vh - 160px));
+      background: rgba(18,26,38,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:none;
+      z-index: 10000;
+    }
+    .modal.open{display:block;}
+    .modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 12px 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+    }
+    .modal-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+    .modal-title .badge{
+      width: 30px; height: 30px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(255,43,43,.95), rgba(255,43,43,.55));
+      display:grid;place-items:center;
+      font-weight:900;
+    }
+    .modal-title strong{
+      font-size: 14px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .modal-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .iconbtn{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+    }
+    .iconbtn:hover{background: rgba(255,255,255,.08);}
+    .iframe-wrap{
+      height: calc(100% - 58px);
+      background: rgba(0,0,0,.12);
+    }
+    iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+      background: transparent;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="row">
+        <div class="brand">
+          <div class="logo">3M</div>
+          <div>
+            <h1>Asistente 3M España</h1>
+            <p class="muted">Consulta precios (Tarifa 2025) y productos (Catálogo 2024) por EAN/UPC, referencia o nombre.</p>
+          </div>
+        </div>
 
-<h2>Asistente 3M España</h2>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="pill">✅ <b>Gratis</b> (GitHub Pages)</div>
+          <button class="btn-primary" id="openBtn">Abrir chat</button>
+        </div>
+      </div>
+    </div>
 
-<iframe
-src="https://cdn.botpress.cloud/webchat/v3.6/shareable.html?configUrl=https://files.bpcontent.cloud/2026/02/25/18/20260225185155-A2IGFUME.json"
-width="100%"
-height="600">
-</iframe>
+    <div class="grid">
+      <div class="card">
+        <h2>¿Qué puedes hacer?</h2>
+        <ul>
+          <li>Buscar por <b>código de barras (EAN/UPC)</b></li>
+          <li>Buscar por <b>referencia 3M</b> (con o sin “PN”)</li>
+          <li>Buscar por <b>nombre del producto</b> aunque esté incompleto</li>
+        </ul>
+      </div>
 
+      <div class="card">
+        <h2>Enlace para compartir</h2>
+        <p class="muted" style="margin:0 0 10px;">
+          Comparte esta página (GitHub Pages). Al abrirla, podrán usar el chatbot con el botón inferior.
+        </p>
+        <div class="pill" id="shareUrl">📎 Se mostrará tu URL al cargar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating action button -->
+  <div class="fab" id="fab" title="Abrir chat">
+    <span><div class="dot"></div>Chat</span>
+  </div>
+
+  <!-- Overlay + Modal -->
+  <div class="overlay" id="overlay"></div>
+
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="badge">3M</div>
+        <div style="min-width:0">
+          <strong>Asistente 3M España</strong>
+          <div class="muted" style="font-size:12px; margin:2px 0 0;">Atención rápida</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="iconbtn" id="popBtn" title="Abrir en pestaña nueva">↗</button>
+        <button class="iconbtn" id="closeBtn" title="Cerrar">✕</button>
+      </div>
+    </div>
+
+    <div class="iframe-wrap">
+      <iframe
+        id="chatFrame"
+        src="https://cdn.botpress.cloud/webchat/v3.6/shareable.html?configUrl=https://files.bpcontent.cloud/2026/02/25/18/20260225185155-A2IGFUME.json"
+        allow="microphone; clipboard-read; clipboard-write"
+      ></iframe>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+    const openBtn = document.getElementById('openBtn');
+    const fab = document.getElementById('fab');
+    const closeBtn = document.getElementById('closeBtn');
+    const popBtn = document.getElementById('popBtn');
+    const shareUrl = document.getElementById('shareUrl');
+
+    function openChat(){
+      modal.classList.add('open');
+      overlay.classList.add('open');
+    }
+    function closeChat(){
+      modal.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+
+    openBtn.addEventListener('click', openChat);
+    fab.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
+    overlay.addEventListener('click', closeChat);
+
+    popBtn.addEventListener('click', () => {
+      const iframe = document.getElementById('chatFrame');
+      window.open(iframe.src, '_blank');
+    });
+
+    // Mostrar URL para compartir
+    window.addEventListener('load', () => {
+      shareUrl.textContent = "📎 " + window.location.href;
+    });
+
+    // Cerrar con ESC
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') closeChat();
+    });
+  </script>
 </body>
 </html>
